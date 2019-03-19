@@ -5,4 +5,4 @@ from django.contrib.auth.models import User
 
 class Recipe(models.Model):
     dishName = models.CharField(max_length = 255)
-    creator = models.ForeignKey(User)
+    creator = models.ForeignKey(User, on_delete= models.CASCADE)
