@@ -1,10 +1,12 @@
+from django.contrib import admin
 from django.urls import path, include
 from food import views
-from rest_framework import routers
+from django.conf.urls import url
 
-router = routers.DefaultRouter()
-router.register('food', views.RecipesViews, 'Recipe')
 
 urlpatterns = [
-    path('', include(router.urls))
+    url(r'^$', views.recipes, name='recipesHome'),
+    url(r'^add_recipe/$', views.addRecipe, name='addRecipes'),
+    url(r'^delete_recipe/$', views.delRecipe, name='delRecipes'),
+
 ]
