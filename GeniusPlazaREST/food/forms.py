@@ -1,5 +1,5 @@
 from django import forms
 
-class HomeForm(forms.Form):
+class recipeCreationForm(forms.Form):
     recipeName = forms.CharField()
-    #recipeCreator = forms.CharField(max_length = 63)
+    recipeCreator = forms.CharField()

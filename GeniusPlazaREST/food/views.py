@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic.base import View
 from django.views.generic import TemplateView
-from food.forms import HomeForm
+from food.forms import recipeCreationForm
 from .models import Recipe, Ingredient, Step
 
 
@@ -22,5 +22,5 @@ class recipesHomeTemplate(TemplateView):
     template_name = 'recipes/recipes.html'
 
     def get(self, request):
-        form = HomeForm()
-        return render(request, self.template_name, {'form': form})
+        hForm = recipeCreationForm()
+        return render(request, self.template_name, {'form': hForm})
