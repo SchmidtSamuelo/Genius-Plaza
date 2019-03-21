@@ -8,5 +8,4 @@ urlpatterns = [
     url(r'^$', views.recipes, name='recipesHome'),
     url(r'^add_recipe/$', views.addRecipe, name='addRecipes'),
     url(r'^delete_recipe/$', views.delRecipe, name='delRecipes'),
-
 ]
