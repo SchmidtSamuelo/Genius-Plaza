@@ -20,13 +20,13 @@ from rest_framework import routers
 from food import views, urls
 
 router = routers.DefaultRouter()
-router.register(r'users', views.userViewSet)
+router.register(r'users', views.UserViewSet)
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^recipes/', include('food.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('', include(router.urls)),
-    url(r'^', include(urls)),
-    url(r'^recipes/', include('food.urls')),
+    path('', include('food.urls')),
 ]

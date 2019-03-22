@@ -16,7 +16,7 @@ from .serializers import UserSerializer, RecipeSerializer
 # Create your views here.
 
 
-class userViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -30,8 +30,7 @@ def listRecipes(request):
         serializer = RecipeSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
-            #returns the saved data and a 201 (basically a sucessful create)
-            #status code
+            #returns the saved data and a 201 (sucessful create) status code
             return JsonResponse(serializer.data, status = 201)
 
     elif request.method == 'GET':
@@ -41,19 +40,35 @@ def listRecipes(request):
         #sure the JSON data is valid in the code.
         return JsonResponse(serializer.data, safe = False)
 
+@csrf_exempt
+def recipeDetail(request, pk):
+    try:
+        recipe = Recipe.objects.get(pk = pk)
+    except Recipe.DoesNotExist:
+        return HttpResponse(status = 404)
 
-# May not be needed after implimenting the classes
-def recipes(request):
-    return render(request, "recipes/recipes.html")
+    if request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = RecipeSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            #returns the saved data
+            return JsonResponse(serializer.data)
 
-def addRecipe(request):
-    return HttpResponse('add')
-# Above may not be needed after implimenting the classes
+    elif request.method == 'GET':
+        serializer = RecipeSerializer(recipe)
+        return JsonResponse(serializer.data)
+        
+    elif request.method == 'DELETE':
+        recipe.delete()
+        #returns 204, sucessful delete
+        return HttpResponse(status = 204)
+        
 
-
-#non_REST version of create. Functioning properly.
-
-class recipesCreateTemplate(TemplateView):
+#non_REST version to create a recipe. Functioning properly through HTML.
+#Won't be narrating this block because it probably won't be used for the
+#project
+class RecipesCreateTemplate(TemplateView):
     template_name = 'recipes/newrecipe.html'
 
     def get(self, request):
@@ -71,10 +86,17 @@ class recipesCreateTemplate(TemplateView):
         args = {'form': hForm, 'dName': dName, 'rCreator': rCreator}
         return render(request, self.template_name, args)
 
+# Below may not be needed after implimenting the classes
+#def recipes(request):
+#    return render(request, "recipes/recipes.html")
+
+#def addRecipe(request):
+#    return HttpResponse('add')
+# Above may not be needed after implimenting the classes
 
 #non-REST version of delete. Does not have error catching
 #will crash if an attempt to delete an object that doesn't
-#exist is passed.
+#exist is passed. Can be fixed by try/except 404.
 '''
 def recipeDelete(request, pk):
     template_name = 'recipes/deleterecipe.html'
