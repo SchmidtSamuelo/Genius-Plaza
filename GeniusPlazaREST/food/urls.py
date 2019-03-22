@@ -6,5 +6,6 @@ from django.conf.urls import url
 
 urlpatterns = [
     url(r'^$', views.recipesCreateTemplate.as_view(), name='recipesHome'),
+    path('modify_recipes/', views.listRecipes),
     #url(r'^delete_recipe/$', views.recipesDeleteTemplate.as_view(), name='delRecipes'),
 ]

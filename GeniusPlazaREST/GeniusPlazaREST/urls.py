@@ -16,8 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
+from rest_framework import routers
+from food import views, urls
+
+router = routers.DefaultRouter()
+router.register(r'users', views.userViewSet)
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^recipes/', include('food.urls'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('', include(router.urls)),
+    url(r'^', include(urls)),
+    url(r'^recipes/', include('food.urls')),
 ]
