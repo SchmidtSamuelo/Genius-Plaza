@@ -8,6 +8,7 @@ from .models import Recipe, Ingredient, Step
 
 # Create your views here.
 
+# May not be needed after implimenting the classes
 def recipes(request):
     return render(request, "recipes/recipes.html")
 
@@ -17,10 +18,19 @@ def addRecipe(request):
 def delRecipe(request, id):
     deleteRecipe = Recipe.objects.get(id = id)
     deleteRecipe.delete()
+# Above may not be needed after implimenting the classes
 
-class recipesHomeTemplate(TemplateView):
-    template_name = 'recipes/recipes.html'
+class recipesCreateTemplate(TemplateView):
+    template_name = 'recipes/newrecipe.html'
 
     def get(self, request):
         hForm = recipeCreationForm()
         return render(request, self.template_name, {'form': hForm})
+    def post(self, request):
+        hForm = recipeCreationForm(request.POST)
+        if hForm.is_valid():
+            hForm.save()
+        
+        hForm = recipeCreationForm()
+        args = {'form': hForm}
+        return render(request, self.template_name, args)
