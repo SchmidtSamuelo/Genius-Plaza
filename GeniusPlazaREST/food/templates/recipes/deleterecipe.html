@@ -1,0 +1,14 @@
+<html lang='en'>
+    <head>
+        <title>Recipes</title>
+    </head>
+    <body>
+        <h1>Delete Recipe</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit">submit</button>
+        </form>
+        <p style="display: inline">you deleted: </p> {{rName}} <br />
+    </body>
+</html>
