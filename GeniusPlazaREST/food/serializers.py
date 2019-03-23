@@ -16,7 +16,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Recipe.objects.create(**validated_data)
 
-    def update(self, validated_data):
+    def update(self, instance, validated_data):
         instance.dishName = validated_data.get('dishName', instance.dishName)
         instance.recipeCreator = validated_data.get('recipeCreator', instance.recipeCreator)
         instance.save()
