@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import viewsets, status
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from .models import Recipe, Ingredient, Step
 from .serializers import UserSerializer, RecipeSerializer
@@ -15,7 +14,6 @@ from .serializers import UserSerializer, RecipeSerializer
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
 
 @api_view(['GET', 'POST'])
 def listRecipes(request):
@@ -44,8 +42,7 @@ def recipeDetail(request, pk):
 
     #update recipes
     if request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = RecipeSerializer(data = data)
+        serializer = RecipeSerializer(recipe, data = request.data)
         if serializer.is_valid():
             serializer.save()
             #returns the saved data
@@ -73,9 +70,31 @@ def listRecipesByUser(request):
         return Response(serializer.data)
 
 
-#non_REST version to create a recipe. Functioning properly through HTML.
-#Won't be narrating this block because it probably won't be used for the
-#project
+# Still in progress, will finish probably by March 29th.
+# Needs a serializer.
+'''
+@api_view(['GET', 'POST'])
+def listSteps(request):
+    #retrieves and lists the steps
+    if request.method == 'GET':
+        steps = Step.objects.all(dishName = request.dishName)
+        serializer = StepSerializer(steps, many = True)
+        #returns serializer data
+        return Response(serializer.data)
+
+    #creates new step
+    elif request.method == 'POST':
+        serializer = StepSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            #returns the saved data and a 201 (sucessful create) status code
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+'''
+
+# non_REST version to create a recipe. Functioning properly through HTML.
+# Won't be narrating this block because it probably won't be used for the
+# project
 '''
 class RecipesCreateTemplate(TemplateView):
     template_name = 'recipes/newrecipe.html'
@@ -95,9 +114,9 @@ class RecipesCreateTemplate(TemplateView):
         args = {'form': hForm, 'dName': dName, 'rCreator': rCreator}
         return render(request, self.template_name, args)
 '''
-#non-REST version of delete. Does not have error catching
-#will crash if there is an attempt to delete an object that doesn't
-#exist. Can be fixed by try/except 404.
+# non-REST version of delete. Does not have error catching
+# will crash if there is an attempt to delete an object that doesn't
+# exist. Can be fixed by try/except 404.
 '''
 def recipeDelete(request, pk):
     template_name = 'recipes/deleterecipe.html'
