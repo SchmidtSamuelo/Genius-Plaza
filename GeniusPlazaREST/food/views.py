@@ -1,14 +1,10 @@
-from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
-from django.views.generic.base import View
-from django.views.generic import TemplateView
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from rest_framework import viewsets
-from rest_framework.renderers import JSONRenderer
+from rest_framework import viewsets, status
 from rest_framework.parsers import JSONParser
-from food.forms import recipeForm, recipeDeleteForm
+from rest_framework.response import Response
 from .models import Recipe, Ingredient, Step
 from .serializers import UserSerializer, RecipeSerializer
 
@@ -20,54 +16,67 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-#must be CSRF Exempt
-@csrf_exempt
+
+@api_view(['GET', 'POST'])
 def listRecipes(request):
-#lists all recipes by default, allows the creation of a recipe
-    if request.method == 'POST':
-        #parses data from a json input, runs the serializer on it.
-        data = JSONParser().parse(request)
-        serializer = RecipeSerializer(data = data)
+    #retrieves and lists the objects (defaults to all objects)
+    if request.method == 'GET':
+        recipes = Recipe.objects.all()
+        serializer = RecipeSerializer(recipes, many = True)
+        #returns serializer data
+        return Response(serializer.data)
+
+    #creates new recipe
+    elif request.method == 'POST':
+        serializer = RecipeSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
             #returns the saved data and a 201 (sucessful create) status code
-            return JsonResponse(serializer.data, status = 201)
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'GET':
-        recipes = Recipe.objects.all()
-        serializer = RecipeSerializer(recipes, many = True)
-        #returns serializer data, safe set to false. Must manually make
-        #sure the JSON data is valid in the code.
-        return JsonResponse(serializer.data, safe = False)
-
-@csrf_exempt
+@api_view(['PUT', 'GET', 'DELETE'])
 def recipeDetail(request, pk):
     try:
         recipe = Recipe.objects.get(pk = pk)
     except Recipe.DoesNotExist:
-        return HttpResponse(status = 404)
+        return HttpResponse(status = status.HTTP_404_NOT_FOUND)
 
+    #update recipes
     if request.method == 'PUT':
         data = JSONParser().parse(request)
         serializer = RecipeSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
             #returns the saved data
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
+    #retrieve recipes
     elif request.method == 'GET':
         serializer = RecipeSerializer(recipe)
-        return JsonResponse(serializer.data)
-        
+        return Response(serializer.data)
+
+    #delete recipes    
     elif request.method == 'DELETE':
         recipe.delete()
         #returns 204, sucessful delete
-        return HttpResponse(status = 204)
-        
+        return Response(status = status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def listRecipesByUser(request):
+    #retrieves recipes by recipe creator. Takes a username instead of a
+    #first/last name input to streamline it a little more.
+    if request.method == 'GET':
+        recipes = Recipe.objects.all(recipeCreator = request.recipeCreator)
+        serializer = RecipeSerializer(recipes, many = True)
+        return Response(serializer.data)
+
 
 #non_REST version to create a recipe. Functioning properly through HTML.
 #Won't be narrating this block because it probably won't be used for the
 #project
+'''
 class RecipesCreateTemplate(TemplateView):
     template_name = 'recipes/newrecipe.html'
 
@@ -85,18 +94,10 @@ class RecipesCreateTemplate(TemplateView):
         hForm = recipeForm()
         args = {'form': hForm, 'dName': dName, 'rCreator': rCreator}
         return render(request, self.template_name, args)
-
-# Below may not be needed after implimenting the classes
-#def recipes(request):
-#    return render(request, "recipes/recipes.html")
-
-#def addRecipe(request):
-#    return HttpResponse('add')
-# Above may not be needed after implimenting the classes
-
+'''
 #non-REST version of delete. Does not have error catching
-#will crash if an attempt to delete an object that doesn't
-#exist is passed. Can be fixed by try/except 404.
+#will crash if there is an attempt to delete an object that doesn't
+#exist. Can be fixed by try/except 404.
 '''
 def recipeDelete(request, pk):
     template_name = 'recipes/deleterecipe.html'
