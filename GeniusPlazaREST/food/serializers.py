@@ -10,17 +10,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only = True)
-    dishName = serializers.CharField(required = False, allow_blank = True)
-    rCreator = serializers.CharField(required = False)
+    name = serializers.CharField(required = False, allow_blank = True)
+    recipe_reator = serializers.CharField(required = False)
 
     def create(self, validated_data):
         return Recipe.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        instance.dishName = validated_data.get('dishName', instance.dishName)
+        instance.name = validated_data.get('name', instance.name)
         instance.recipeCreator = validated_data.get('recipeCreator', instance.recipeCreator)
         instance.save()
         return instance
     class Meta:
         model = Recipe
-        fields = ('id' ,'dishName', 'rCreator')
+        fields = ('id' ,'name', 'recipe_creator')

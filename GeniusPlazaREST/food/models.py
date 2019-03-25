@@ -3,22 +3,20 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-class Recipe(models.Model):
-    dishName = models.CharField(max_length = 255)
-    recipeCreator = models.ForeignKey(User, on_delete = models.CASCADE, null=True, default = 0, related_name='creator')
-    def __str__(self):
-        return self.dishName
-
 class Ingredient(models.Model):
-    ingredientName = models.CharField(max_length=255)
-    amount = models.CharField(max_length=63)
-    dishName = models.ForeignKey(Recipe, on_delete = models.CASCADE, default = "0")
+    text = models.CharField(max_length=255)
     def __str__(self):
-        return self.ingredientName
+        return self.text
 
 class Step(models.Model):
-    dishName = models.ForeignKey(Recipe, on_delete = models.CASCADE, default = "0")
-    stepNumber = models.IntegerField()
-    stepDescription = models.TextField()
+    step_text = models.TextField()
     def __str__(self):
-        return self.dishName
+        return self.step_text
+
+class Recipe(models.Model):
+    name = models.CharField(max_length = 255, null=False)
+    recipe_creator = models.ForeignKey(User, on_delete = models.CASCADE, null=True, default = 0, related_name='creator')
+    step = models.ForeignKey(Step, on_delete = models.CASCADE, null=True, default = 0, related_name='steps')
+    ingredient = models.ForeignKey(Ingredient, on_delete = models.CASCADE, null = True, default = 0, related_name = 'ingredents')
+    def __str__(self):
+        return self.name
